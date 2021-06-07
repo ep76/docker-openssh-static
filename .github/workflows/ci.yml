@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: 'localhost:5000/{0}'
+          tags: type=raw,value=latest
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: network=host
+
+      - name: Restore cache
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile') }}
+          restore-keys: ${{ runner.os }}-buildx-
+
+      - name: Build (openssh-builder)
+        uses: docker/build-push-action@v2
+        with:
+          target: openssh-builder
+          platforms: ${{ env.platforms }}
+          tags: ${{ format(steps.meta.outputs.tags, 'openssh-builder') }}
+          context: .
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          push: true
+
+      - name: Test (openssh-builder)
+        run: |
+          for platform in $(echo ${{ env.platforms }} | tr ',' ' '); do
+            echo "Testing ${platform}"
+            docker run -i --platform=${platform} --rm \
+              "${{ format(steps.meta.outputs.tags, 'openssh-builder') }}" \
+              < tests/openssh-builder.sh
+          done
+
+      - name: Build
+        uses: docker/build-push-action@v2
+        with:
+          platforms: ${{ env.platforms }}
+          tags: ${{ format(steps.meta.outputs.tags, 'openssh-static') }}
+          context: .
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          push: true
+
+      - name: Test
+        run: |
+          for platform in $(echo ${{ env.platforms }} | tr ',' ' '); do
+            echo "Testing ${platform}"
+            docker run -i --platform=${platform} --rm --entrypoint=ssh \
+              "${{ format(steps.meta.outputs.tags, 'openssh-static') }}" -V
+          done
+
+      - name: Update cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+env:
+  platforms: linux/amd64, linux/386, linux/arm64/v8, linux/arm/v7, linux/arm/v6
