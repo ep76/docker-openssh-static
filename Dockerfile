@@ -38,7 +38,7 @@ RUN \
 
 FROM busybox:1.33 AS openssh-static
 LABEL maintainer="https://github.com/ep76/openssh-static"
-COPY --from=openssh-builder /openssh /usr
+COPY --from=builder /openssh /usr
 VOLUME [ "/var/run", "/var/empty" ]
 ENTRYPOINT [ "/usr/sbin/sshd" ]
 CMD [ "-D", "-e" ]
