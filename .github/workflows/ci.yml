@@ -54,7 +54,7 @@ jobs:
       - name: Build the image
         uses: docker/build-push-action@v2
         with:
-          target: static-openssh
+          target: openssh-static
           platforms: ${{ env.platforms }}
           tags: ${{ format(steps.meta.outputs.tags, 'openssh-static') }}
           context: .
