@@ -1,4 +1,4 @@
-FROM alpine:3.13 AS openssh-builder
+FROM alpine:3.13 AS builder
 ARG openssh_url=https://github.com/openssh/openssh-portable/archive/refs/tags/V_8_6_P1.tar.gz
 RUN \
   apk add --no-cache \
@@ -31,7 +31,12 @@ RUN \
     | patch -p1 && \
   make install-nosysconf exec_prefix=/openssh
 
-FROM busybox:1.33
+FROM builder AS tester
+RUN \
+  TEST_SSH_UNSAFE_PERMISSIONS=1 \
+    make -C /tmp file-tests interop-tests unit SK_DUMMY_LIBRARY=''
+
+FROM busybox:1.33 AS openssh-static
 LABEL maintainer="https://github.com/ep76/openssh-static"
 COPY --from=openssh-builder /openssh /usr
 VOLUME [ "/var/run", "/var/empty" ]
