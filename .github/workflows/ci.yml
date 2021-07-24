@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - '!**'
   pull_request:
   workflow_dispatch:
 
@@ -23,7 +25,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: 'localhost:5000/{0}'
+          images: ${{ format('localhost:5000/{0}', env.target) }}
           tags: type=raw,value=latest
 
       - name: Setup QEMU
@@ -41,7 +43,7 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile') }}
           restore-keys: ${{ runner.os }}-buildx-
 
-      - name: Build and test openssh
+      - name: Build and test
         uses: docker/build-push-action@v2
         with:
           target: tester
@@ -54,9 +56,9 @@ jobs:
       - name: Build the image
         uses: docker/build-push-action@v2
         with:
-          target: openssh-static
+          target: ${{ env.target }}
           platforms: ${{ env.platforms }}
-          tags: ${{ format(steps.meta.outputs.tags, 'openssh-static') }}
+          tags: ${{ steps.meta.outputs.tags }}
           context: .
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
@@ -66,8 +68,8 @@ jobs:
         run: |
           for platform in $(echo ${{ env.platforms }} | tr ',' ' '); do
             echo "Testing ${platform}"
-            docker run -i --platform=${platform} --rm --entrypoint=ssh \
-              "${{ format(steps.meta.outputs.tags, 'openssh-static') }}" -V
+            docker run -i --platform=${platform} --rm \
+              --entrypoint=ssh "${{ steps.meta.outputs.tags }}" -V
           done
 
       - name: Update cache
@@ -77,3 +79,4 @@ jobs:
 
 env:
   platforms: linux/amd64, linux/386, linux/arm64/v8, linux/arm/v7, linux/arm/v6
+  target: openssh-static
