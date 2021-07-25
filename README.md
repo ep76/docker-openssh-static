@@ -1,10 +1,10 @@
-# openssh-static
+# docker-openssh-static
 
 > A Docker image for [OpenSSH](https://www.openssh.com),
 > statically compiled with `musl`
 
-[![CI](https://github.com/ep76/openssh-static/actions/workflows/ci.yml/badge.svg?branch=main)](
-  https://github.com/ep76/openssh-static/actions/workflows/ci.yml
+[![CI](https://github.com/ep76/docker-openssh-static/actions/workflows/ci.yml/badge.svg?branch=main)](
+  https://github.com/ep76/docker-openssh-static/actions/workflows/ci.yml
 )
 [![DockerHub](https://img.shields.io/docker/v/ep76/openssh-static/latest)](
   https://hub.docker.com/r/ep76/openssh-static/tags?page=1&ordering=last_updated

@@ -37,7 +37,7 @@ RUN \
     make -C /tmp file-tests interop-tests unit SK_DUMMY_LIBRARY=''
 
 FROM busybox:1.33 AS openssh-static
-LABEL maintainer="https://github.com/ep76/openssh-static"
+LABEL maintainer="https://github.com/ep76/docker-openssh-static"
 COPY --from=builder /openssh /usr
 VOLUME [ "/var/run", "/var/empty" ]
 ENTRYPOINT [ "/usr/sbin/sshd" ]
