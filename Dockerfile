@@ -36,7 +36,7 @@ RUN \
   TEST_SSH_UNSAFE_PERMISSIONS=1 \
     make -C /tmp file-tests interop-tests unit SK_DUMMY_LIBRARY=''
 
-FROM busybox:1.33 AS openssh-static
+FROM busybox:1.34 AS openssh-static
 LABEL maintainer="https://github.com/ep76/docker-openssh-static"
 COPY --from=builder /openssh /usr
 VOLUME [ "/var/run", "/var/empty" ]
