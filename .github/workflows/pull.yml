@@ -1,0 +1,12 @@
+name: Pull
+
+on:
+  schedule:
+    - cron: '25 4 15 * *'
+  workflow_dispatch:
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    steps:
+      - run: docker pull -a ep76/openssh-static
