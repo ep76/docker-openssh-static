@@ -1,5 +1,5 @@
 FROM alpine:3.14 AS builder
-ARG openssh_url=https://github.com/openssh/openssh-portable/archive/refs/tags/V_8_9_P1.tar.gz
+ARG openssh_url=https://github.com/openssh/openssh-portable/archive/refs/tags/V_9_0_P1.tar.gz
 RUN \
   apk add --no-cache \
     autoconf \
