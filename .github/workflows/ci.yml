@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - Dockerfile
     tags:
       - '!**'
-  pull_request:
   workflow_dispatch:
 
 jobs:
