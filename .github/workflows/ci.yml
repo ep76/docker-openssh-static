@@ -23,7 +23,7 @@ jobs:
 
       - name: Set metadata
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: ${{ format('localhost:5000/{0}', env.target) }}
           tags: type=raw,value=latest
