@@ -1,4 +1,4 @@
-FROM alpine:3.16.0 AS builder
+FROM alpine:3.17.1 AS builder
 ARG openssh_url=https://github.com/openssh/openssh-portable/archive/refs/tags/V_9_0_P1.tar.gz
 RUN \
   apk add --no-cache \
